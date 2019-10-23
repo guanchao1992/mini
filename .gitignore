@@ -7,3 +7,4 @@
 /frameworks/cocos2d-x
 *.db
 *.opendb
+/Debug.win32/*.lib
