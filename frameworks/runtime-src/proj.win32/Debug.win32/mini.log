@@ -1,0 +1,7 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(1189,5): warning MSB8012: TargetPath(D:\projects\mini\frameworks\runtime-src\proj.win32\Debug.win32\mini.exe) does not match the Linker's OutputFile property value (D:\projects\mini\simulator\win32\mini.exe). This may cause your project to build incorrectly. To correct this, please make sure that $(OutDir), $(TargetName) and $(TargetExt) property values match the value specified in %(Link.OutputFile).
+  mini.vcxproj -> D:\projects\mini\frameworks\runtime-src\proj.win32\Debug.win32\mini.exe
+  mini.vcxproj -> D:\projects\mini\frameworks\runtime-src\proj.win32\../../../simulator/win32/mini.pdb (Full PDB)
+  复制了 14 个文件
+  复制了 1 个文件
+  复制了 0 个文件
+  复制了 0 个文件
