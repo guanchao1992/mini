@@ -10,12 +10,14 @@ local EXPORTED_METHODS = {
     "removeAllEventListeners",
     "hasEventListener",
     "dumpAllEventListeners",
+    "dispatch",
 }
 
 function Event:init_()
     self.target_ = nil
     self.listeners_ = {}
     self.nextListenerHandleIndex_ = 0
+    self.handle_name_ = {}
 end
 
 function Event:bind(target)
@@ -41,6 +43,9 @@ function Event:on(eventName, listener, tag)
     local handle = tostring(self.nextListenerHandleIndex_)
     tag = tag or ""
     self.listeners_[eventName][handle] = {listener, tag}
+    self.handle_name_[handle] = eventName   
+    --[[
+    在调用remove对监听列表进行删除时，handle_name_会留有残余。不能通过handle_name_判断监听的个数。因为nextListenerHandleIndex_不会被重置，所以实际使用时不会出现handle混乱的情况 ]]
 
     if DEBUG > 1 then
         printInfo("%s [Event] addEventListener() - event: %s, handle: %s, tag: \"%s\"",
@@ -52,7 +57,7 @@ end
 
 Event.addEventListener = Event.on
 
-function Event:dispatchEvent(event)
+function Event:dispatchEvent(event, ...)
     event.name = string.upper(tostring(event.name))
     local eventName = event.name
     if DEBUG > 1 then
@@ -68,15 +73,15 @@ function Event:dispatchEvent(event)
 
     for handle, listener in pairs(self.listeners_[eventName]) do
         if DEBUG > 1 then
-            printInfo("%s [Event] dispatchEvent() - dispatching event %s to listener %s", tostring(self.target_), eventName, handle)
+            --printInfo("%s [Event] dispatchEvent() - dispatching event %s to listener %s", tostring(self.target_), eventName, handle)
         end
         -- listener[1] = listener
         -- listener[2] = tag
         event.tag = listener[2]
-        listener[1](event)
+        listener[1](event,...)
         if event.stop_ then
             if DEBUG > 1 then
-                printInfo("%s [Event] dispatchEvent() - break dispatching for event %s", tostring(self.target_), eventName)
+                --printInfo("%s [Event] dispatchEvent() - break dispatching for event %s", tostring(self.target_), eventName)
             end
             break
         end
@@ -86,6 +91,17 @@ function Event:dispatchEvent(event)
 end
 
 function Event:removeEventListener(handleToRemove)
+    local eventName = self.handle_name_[handleToRemove]
+    if eventName then
+        local listeners = self.listeners_[eventName]
+        if listeners then
+            listeners[handleToRemove] = nil
+        end
+        self.handle_name_[handleToRemove] = nil
+    end
+    return self.target_
+
+--[[
     for eventName, listenersForEvent in pairs(self.listeners_) do
         for handle, _ in pairs(listenersForEvent) do
             if handle == handleToRemove then
@@ -99,6 +115,7 @@ function Event:removeEventListener(handleToRemove)
     end
 
     return self.target_
+    ]]
 end
 
 function Event:removeEventListenersByTag(tagToRemove)
@@ -128,6 +145,7 @@ end
 
 function Event:removeAllEventListeners()
     self.listeners_ = {}
+    self.handle_name_ = {}
     if DEBUG > 1 then
         printInfo("%s [Event] removeAllEventListeners() - remove all listeners", tostring(self.target_))
     end
@@ -152,6 +170,10 @@ function Event:dumpAllEventListeners()
         end
     end
     return self.target_
+end
+
+function Event:dispatch(ename, ...)
+    self:dispatchEvent({name = ename},...)
 end
 
 return Event

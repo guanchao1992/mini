@@ -6,8 +6,11 @@ cc.FileUtils:getInstance():addSearchPath("res/")
 require "config"
 require "cocos.init"
 
+local MyApp = require("app.MyApp")
+local CardsModel = require("app.moudels.CardsModel")
+
 local function main()
-    require("app.MyApp"):create():run()
+	MyApp.new():run()
 end
 
 local status, msg = xpcall(main, __G__TRACKBACK__)
